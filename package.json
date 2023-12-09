@@ -5,6 +5,7 @@
     "dev": "next dev",
     "start": "next start",
     "seed": "node -r dotenv/config ./scripts/seed.js",
+    "seed:schedule": "node -r dotenv/config ./scripts/schedule.seed.js",
     "lint": "next lint"
   },
   "dependencies": {
