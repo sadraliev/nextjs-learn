@@ -1,19 +1,23 @@
-import { Schedule } from "@/app/lib/definitions";
 import { sql } from "@vercel/postgres";
+import { ScheduleQueryResponse } from "../types";
+import { unstable_noStore as noStore } from "next/cache";
 
 interface IScheduleRepository {
-  getScheduleByRange(startDate: Date, endDate: Date): Promise<Schedule[]>;
+  getScheduleByRange(
+    startDate: string,
+    endDate: string
+  ): Promise<ScheduleQueryResponse[]>;
 }
 
 export default class ScheduleRepository implements IScheduleRepository {
   async getScheduleByRange(
-    startDate: Date,
-    endDate: Date
-  ): Promise<Schedule[]> {
+    startDate: string,
+    endDate: string
+  ): Promise<ScheduleQueryResponse[]> {
+    noStore();
     try {
       console.log("Fetching Schedule data...");
-
-      const data = await sql<Schedule>`
+      const data = await sql<ScheduleQueryResponse>`
         SELECT DATE_TRUNC('day', start_time) AS datetime,
           ARRAY_AGG(
             jsonb_build_object(
@@ -24,9 +28,9 @@ export default class ScheduleRepository implements IScheduleRepository {
               'groupName', g.name
             )
           ) AS lessons
-        FROM schedules
+        FROM schedules s
         JOIN groups g ON s.group_id = g.id
-        WHERE start_time >= ${startDate.toISOString()} AND start_time <= ${endDate.toISOString()}
+        WHERE s.start_time >= ${startDate} AND s.end_time <= ${endDate}
         GROUP BY datetime
         ORDER BY datetime;
       `;
@@ -34,7 +38,7 @@ export default class ScheduleRepository implements IScheduleRepository {
       return data.rows;
     } catch (error) {
       console.error("Database Error:", error);
-      throw new Error("Failed to fetch revenue data.");
+      throw new Error("Failed to fetch Schedule data.");
     }
   }
 }

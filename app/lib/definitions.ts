@@ -86,17 +86,3 @@ export type InvoiceForm = {
   amount: number;
   status: "pending" | "paid";
 };
-
-//? Schedule type
-
-export type Group = {
-  id: string;
-  name: string;
-  amount: number;
-};
-export type Schedule = {
-  id: string;
-  startTime: string;
-  endTime: string;
-  groupId: string;
-};
